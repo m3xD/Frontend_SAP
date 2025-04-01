@@ -15,6 +15,11 @@ import UserDashboard from "./pages/user/UserDashboard/UserDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard/AdminDashboard";
 import ProfilePage from "./pages/profile/ProfilePage";
 import UserManagement from "./pages/admin/UserManagement/UserManagement";
+import AssessmentManagement from "./pages/admin/AssessmentManagement/AssessmentManagement";
+import TakingAssessment from "./pages/user/TakingAssessment/TakingAssessment";
+import AssessmentDetail from "./pages/admin/AssessmentDetail/AssessmentDetail";
+import AssessmentLayout from "./layout/AssessmentLayout";
+import UserLayout from "./layout/UserLayout";
 
 // Create a protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -113,6 +118,18 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/user/assessments/take/:attemptId"
+          element={
+            <ProtectedRoute>
+              {authState.user?.role === "user" ? (
+                <TakingAssessment />
+              ) : (
+                <Navigate to="/" />
+              )}
+            </ProtectedRoute>
+          }
+        />
 
         {/* Admin routes - protected */}
         <Route
@@ -132,7 +149,38 @@ function App() {
           element={
             <ProtectedRoute>
               {authState.user?.role === "admin" ? (
-                <UserManagement />
+                <UserLayout>
+                  <UserManagement />
+                </UserLayout>
+              ) : (
+                <Navigate to="/" />
+              )}
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/assessments"
+          element={
+            <ProtectedRoute>
+              {authState.user?.role === "admin" ? (
+                <AssessmentLayout>
+                  <AssessmentManagement />
+                </AssessmentLayout>
+              ) : (
+                <Navigate to="/" />
+              )}
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/assessments/:id"
+          element={
+            <ProtectedRoute>
+              {authState.user?.role === "admin" ? (
+                <AssessmentLayout>
+                  <AssessmentDetail />
+                </AssessmentLayout>
               ) : (
                 <Navigate to="/" />
               )}

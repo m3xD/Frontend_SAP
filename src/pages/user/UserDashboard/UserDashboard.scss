@@ -1,117 +1,164 @@
 .user-dashboard {
-    padding: 2rem 0;
-    background: #f8fafc;
-    min-height: calc(100vh - 56px);
+  background: var(--color-background);
+  padding: var(--padding-1);
+  margin-top: var(--header-height);
+  min-height: calc(100vh - var(--header-height));
   
-    .dashboard-header {
-      margin-bottom: 2rem;
-      
-      h1 {
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-      }
+  .dashboard-header {
+    margin-bottom: 2rem;
+    
+    h1 {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--color-dark);
     }
-  
-    .stats-section {
-      margin-bottom: 2rem;
-  
-      .stat-card {
-        border: none;
-        border-radius: 1rem;
-        transition: transform 0.2s;
-  
-        &:hover {
-          transform: translateY(-5px);
-        }
-  
-        .stat-icon {
-          width: 48px;
-          height: 48px;
-          background: rgba(0, 97, 255, 0.1);
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 1rem;
-          color: #0061ff;
-        }
-  
+  }
+
+  .stats-section {
+    margin-bottom: 1.5rem;
+    
+    .stat-card {
+      border-radius: var(--card-border-radius);
+      border: none;
+      box-shadow: var(--box-shadow);
+      transition: transform 0.3s, box-shadow 0.3s;
+      height: 100%;
+      
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+      
+      .card-body {
+        padding: 1.5rem;
+      }
+      
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(var(--color-primary-rgb), 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-primary);
+      }
+      
+      .stat-info {
+        margin-left: 1rem;
+        
         h3 {
           font-size: 1.8rem;
           font-weight: 600;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.25rem;
+          color: var(--color-dark);
         }
-  
+        
         p {
-          color: #6b7280;
-          margin: 0;
+          margin-bottom: 0;
+          color: var(--color-gray);
+          font-size: 0.9rem;
         }
-      }
-    }
-  
-    .quiz-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 0;
-      border-bottom: 1px solid #e5e7eb;
-  
-      &:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-      }
-  
-      h6 {
-        margin-bottom: 0.25rem;
-      }
-  
-      .quiz-meta {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-    }
-  
-    .activity-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid #e5e7eb;
-  
-      &:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-      }
-  
-      h6 {
-        font-size: 0.9rem;
-        margin-bottom: 0.25rem;
-      }
-  
-      p {
-        font-size: 0.8rem;
-      }
-    }
-  
-    .card {
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      border-radius: 1rem;
-  
-      .card-header {
-        background: transparent;
-        border-bottom: 1px solid #e5e7eb;
-        padding: 1rem;
-  
-        h5 {
-          font-weight: 600;
-        }
-      }
-  
-      .card-body {
-        padding: 1rem;
       }
     }
   }
   
+  .assessment-card, 
+  .results-card {
+    border-radius: var(--card-border-radius);
+    border: none;
+    box-shadow: var(--box-shadow);
+    height: 100%;
+    
+    .card-header {
+      background-color: transparent;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 1rem 1.5rem;
+      
+      h5 {
+        font-weight: 600;
+        color: var(--color-dark);
+      }
+    }
+    
+    .card-body {
+      padding: 1.5rem;
+    }
+  }
   
+  .assessment-list {
+    .assessment-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      
+      &:first-child {
+        padding-top: 0;
+      }
+      
+      &:last-child {
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+      
+      .assessment-info {
+        h6 {
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          color: var(--color-dark);
+        }
+        
+        .assessment-meta {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          font-size: 0.85rem;
+          color: var(--color-gray);
+        }
+      }
+    }
+  }
+  
+  .results-table {
+    th {
+      font-weight: 600;
+      color: var(--color-dark);
+      border-top: none;
+      border-bottom-width: 1px;
+    }
+    
+    td {
+      vertical-align: middle;
+      border-color: rgba(0, 0, 0, 0.05);
+      padding: 0.75rem 0.5rem;
+      
+      .fw-medium {
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .user-dashboard {
+    .stats-section {
+      .stat-card {
+        margin-bottom: 1rem;
+      }
+    }
+    
+    .assessment-list {
+      .assessment-item {
+        flex-direction: column;
+        align-items: flex-start;
+        
+        .assessment-info {
+          margin-bottom: 1rem;
+        }
+      }
+    }
+  }
+}
+

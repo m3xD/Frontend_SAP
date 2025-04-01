@@ -1,206 +1,186 @@
 import React from "react";
-import { Badge, Button, Card, Form, Pagination, Spinner, Table } from "react-bootstrap";
-import { Edit2, Trash2, User, ArrowUp, ArrowDown } from "react-feather";
-import { User as UserType } from "../../types/UserTypes";
-import './UsersTable.scss';
+import { Table, Button, Badge, Form, Pagination, Card } from "react-bootstrap";
+import { Edit, Trash2 } from "react-feather";
+import { useUserManagement } from "../../hooks/useUserManagement";
 
-interface UsersTableProps {
-  loading: boolean;
-  users: UserType[];
-  searchTerm: string;
-  roleFilter: string;
-  totalUsers: number;
-  currentPage: number;
-  totalPages: number;
-  pageSize: number;
-  handleOpenEditModal: (user: UserType) => void;
-  handleOpenDeleteModal: (user: UserType) => void;
-  handlePageChange: (pageNumber: number) => void;
-  setPageSize: (pageSize: number) => void;
-  setCurrentPage: (pageNumber: number) => void;
-  handleSort?: (field: string) => void;
-  sortField?: string;
-}
+const UsersTable: React.FC = () => {
+  const {
+    users,
+    totalElements,
+    totalPages,
+    loading,
+    filters,
+    setFilter,
+    openEditModal,
+    openDeleteModal,
+    handleSort,
+  } = useUserManagement();
 
-const UsersTable: React.FC<UsersTableProps> = ({
-  loading,
-  users,
-  searchTerm,
-  roleFilter,
-  totalUsers,
-  currentPage,
-  totalPages,
-  pageSize,
-  handleOpenEditModal,
-  handleOpenDeleteModal,
-  handlePageChange,
-  setPageSize,
-  setCurrentPage,
-  handleSort,
-  sortField,
-}) => {
-  const sortColumn = (field: string) => {
-    if (!sortField) return '';
-    return sortField === field || sortField === `-${field}` ? 'sortable sorted' : 'sortable';
-  };
+  // Render pagination
+  const renderPagination = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, filters.page - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
-  const sortIcon = (field: string) => {
-    if (!sortField) return null;
-    if (sortField === field) {
-      return <ArrowUp size={14} className="ms-1" />;
-    } else if (sortField === `-${field}`) {
-      return <ArrowDown size={14} className="ms-1" />;
+    // Adjust start page if end page is at maximum
+    if (endPage === totalPages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-    return null;
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <Pagination.Item
+          key={i}
+          active={i === filters.page}
+          onClick={() => setFilter("page", i)}
+        >
+          {i}
+        </Pagination.Item>
+      );
+    }
+
+    return (
+      <Pagination className="mb-0">
+        <Pagination.First
+          onClick={() => setFilter("page", 1)}
+          disabled={filters.page === 1}
+        />
+        <Pagination.Prev
+          onClick={() => setFilter("page", Math.max(1, filters.page - 1))}
+          disabled={filters.page === 1}
+        />
+        {pages}
+        <Pagination.Next
+          onClick={() =>
+            setFilter("page", Math.min(totalPages, filters.page + 1))
+          }
+          disabled={filters.page === totalPages}
+        />
+        <Pagination.Last
+          onClick={() => setFilter("page", totalPages)}
+          disabled={filters.page === totalPages}
+        />
+      </Pagination>
+    );
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <Card.Body className="text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3">Loading users...</p>
+        </Card.Body>
+      </Card>
+    );
+  }
+
+  if (users.length === 0) {
+    return (
+      <Card>
+        <Card.Body className="text-center py-5">
+          <p>No users found.</p>
+        </Card.Body>
+      </Card>
+    );
+  }
 
   return (
-    <Card className="users-table-card">
-      <Card.Body>
-        {loading ? (
-          <div className="text-center my-5">
-            <Spinner animation="border" variant="primary" />
-            <p className="mt-3">Loading users...</p>
-          </div>
-        ) : users.length === 0 ? (
-          <div className="text-center my-5">
-            <User size={48} className="text-muted mb-3" />
-            <h5>No users found</h5>
-            <p className="text-muted">
-              {searchTerm || roleFilter !== "all"
-                ? "Try changing your search or filter criteria"
-                : "Create a new user to get started"}
-            </p>
-          </div>
-        ) : (
-          <>
-            <Table responsive hover className="users-table">
-              <thead>
-                <tr>
-                  <th onClick={() => handleSort && handleSort('name')} className={sortColumn('name')}>
-                    Name {sortIcon('name')}
-                  </th>
-                  <th onClick={() => handleSort && handleSort('email')} className={sortColumn('email')}>
-                    Email {sortIcon('email')}
-                  </th>
-                  <th onClick={() => handleSort && handleSort('role')} className={sortColumn('role')}>
-                    Role {sortIcon('role')}
-                  </th>
-                  <th className="text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id}>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
-                    <td>
-                      <Badge bg={user.role === "admin" ? "danger" : "primary"}>
-                        {user.role}
-                      </Badge>
-                    </td>
-                    <td className="text-center">
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        className="me-2"
-                        onClick={() => handleOpenEditModal(user)}
-                      >
-                        <Edit2 size={16} />
-                      </Button>
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        onClick={() => handleOpenDeleteModal(user)}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-
-            {/* Pagination */}
-            <div className="d-flex justify-content-between align-items-center mt-4 p-2">
-              <div>
-                <span className="text-muted">
-                  Showing{" "}
-                  {Math.min((currentPage - 1) * pageSize + 1, totalUsers)} to{" "}
-                  {Math.min(currentPage * pageSize, totalUsers)} of {totalUsers}{" "}
-                  entries
-                </span>
-              </div>
-              <Pagination>
-                <Pagination.First
-                  onClick={() => handlePageChange(1)}
-                  disabled={currentPage === 1}
-                />
-                <Pagination.Prev
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                />
-
-                {/* Show pagination numbers */}
-                {[...Array(totalPages)].map((_, index) => {
-                  const pageNumber = index + 1;
-                  // Only show pages around current page
-                  if (
-                    pageNumber === 1 ||
-                    pageNumber === totalPages ||
-                    (pageNumber >= currentPage - 1 &&
-                      pageNumber <= currentPage + 1)
-                  ) {
-                    return (
-                      <Pagination.Item
-                        key={pageNumber}
-                        active={pageNumber === currentPage}
-                        onClick={() => handlePageChange(pageNumber)}
-                      >
-                        {pageNumber}
-                      </Pagination.Item>
-                    );
-                  } else if (
-                    pageNumber === currentPage - 2 ||
-                    pageNumber === currentPage + 2
-                  ) {
-                    return (
-                      <Pagination.Ellipsis key={`ellipsis-${pageNumber}`} />
-                    );
-                  }
-                  return null;
-                })}
-
-                <Pagination.Next
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                />
-                <Pagination.Last
-                  onClick={() => handlePageChange(totalPages)}
-                  disabled={currentPage === totalPages}
-                />
-              </Pagination>
-
-              <div>
-                <Form.Select
-                  value={pageSize}
-                  onChange={(e) => {
-                    setPageSize(Number(e.target.value));
-                    setCurrentPage(1); // Reset to first page on page size change
-                  }}
-                  style={{ width: "80px" }}
+    <>
+      <Table responsive hover className="align-middle users-table">
+        <thead>
+          <tr>
+            <th
+              onClick={() => handleSort("name")}
+              className={filters.sort.includes("name") ? "sorted" : ""}
+            >
+              Name
+              {filters.sort === "name" && (
+                <span className="sort-indicator">↑</span>
+              )}
+              {filters.sort === "-name" && (
+                <span className="sort-indicator">↓</span>
+              )}
+            </th>
+            <th
+              onClick={() => handleSort("email")}
+              className={filters.sort.includes("email") ? "sorted" : ""}
+            >
+              Email
+              {filters.sort === "email" && (
+                <span className="sort-indicator">↑</span>
+              )}
+              {filters.sort === "-email" && (
+                <span className="sort-indicator">↓</span>
+              )}
+            </th>
+            <th
+              onClick={() => handleSort("role")}
+              className={filters.sort.includes("role") ? "sorted" : ""}
+            >
+              Role
+              {filters.sort === "role" && (
+                <span className="sort-indicator">↑</span>
+              )}
+              {filters.sort === "-role" && (
+                <span className="sort-indicator">↓</span>
+              )}
+            </th>
+            <th className="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user) => (
+            <tr key={user.id}>
+              <td>{user.name}</td>
+              <td>{user.email}</td>
+              <td>
+                <Badge bg={user.role === "admin" ? "danger" : "primary"}>
+                  {user.role}
+                </Badge>
+              </td>
+              <td className="text-end">
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  className="me-2"
+                  onClick={() => openEditModal(user)}
                 >
-                  <option value="5">5</option>
-                  <option value="10">10</option>
-                  <option value="25">25</option>
-                  <option value="50">50</option>
-                </Form.Select>
-              </div>
-            </div>
-          </>
-        )}
-      </Card.Body>
-    </Card>
+                  <Edit size={16} />
+                </Button>
+                <Button
+                  variant="outline-danger"
+                  size="sm"
+                  onClick={() => openDeleteModal(user)}
+                >
+                  <Trash2 size={16} />
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+
+      <div className="d-flex justify-content-between align-items-center mt-3">
+        <div>
+          <Form.Select
+            value={filters.size}
+            onChange={(e) => setFilter("size", parseInt(e.target.value))}
+            style={{ width: "80px" }}
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </Form.Select>
+        </div>
+        {renderPagination()}
+        <div className="text-muted">Total: {totalElements} users</div>
+      </div>
+    </>
   );
 };
 

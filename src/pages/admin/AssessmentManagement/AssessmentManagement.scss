@@ -1,0 +1,55 @@
+.assessment-management {
+  background: var(--color-background);
+  margin-top: var(--header-height);
+  padding: var(--padding-1);
+  min-height: calc(100vh - var(--header-height));
+  
+  h1 {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  
+  .filter-card {
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    border: none;
+  }
+  
+  .assessment-table {
+    font-size: 0.95rem;
+    
+    th {
+      font-weight: 600;
+      border-top: none;
+      white-space: nowrap;
+      
+      &.clickable {
+        cursor: pointer;
+        transition: background-color 0.2s;
+        
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.03);
+        }
+      }
+    }
+    
+    tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .assessment-title {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+    
+    .icon-button {
+      padding: 0.25rem;
+      margin-right: 0.25rem;
+      border: none;
+      
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+    }
+  }
+}

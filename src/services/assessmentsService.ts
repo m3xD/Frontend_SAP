@@ -28,7 +28,7 @@ const assessmentsService = {
   ): Promise<any> {
     try {
       const res = await mainApi.get(
-        `/assessments/?=${page}&size=${size}&subject=${subject}&status=${status}&search=${search}&sort=${sort}`
+        `/assessments?page=${page}&size=${size}&subject=${subject}&status=${status}&search=${search}&sort=${sort}`
       );
       return res.data;
     } catch (error) {
@@ -62,6 +62,7 @@ const assessmentsService = {
     try {
       const res = await mainApi.get(`/assessments/${id}`);
       const assessment: AssessmentDetails = res.data;
+      console.log(">>> check res assessment details:", assessment);
       return assessment;
     } catch (error) {
       throw new Error("Failed to get assessment");

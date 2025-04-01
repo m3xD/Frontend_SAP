@@ -1,5 +1,5 @@
 export interface Option {
-  id: string;
+  optionId: string;
   text: string;
 }
 

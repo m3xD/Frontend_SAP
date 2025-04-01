@@ -25,8 +25,7 @@ export interface Assessment {
   passingScore: number;
   questionCount: number;
 }
-export interface AssessmentDetails {
-  assessment: Assessment;
+export interface AssessmentDetails extends Assessment{
   questions: Question[];
   settings: AssessmentSettings;
 }
