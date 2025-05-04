@@ -117,7 +117,7 @@ const TakingAssessment = () => {
             <Card className="webcam-card">
               <Card.Body>
                 <h5>Webcam Monitoring</h5>
-                <WebcamMonitor onEvent={handleWebcamEvent} />
+                <WebcamMonitor onEvent={handleWebcamEvent} attemptId={assessment?.attemptId} assessmentId={assessment?.assessmentId}/>
                 
                 {webcamWarnings > 0 && (
                   <Alert variant="warning" className="mt-3">

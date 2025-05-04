@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, ProgressBar, Alert } from 'react-bootstrap';
 import { Camera, CheckCircle, RefreshCw } from 'react-feather';
+import { useNavigate } from 'react-router-dom';
 import './FaceRegister.scss';
 import { useFaceRegistration } from '../../../hooks/useFaceRegistration';
 
 const FaceRegister: React.FC = () => {
-  const { 
+  const navigate = useNavigate();
+  const {
     videoRef,
     capturedImages,
     isCapturing,
@@ -13,11 +15,24 @@ const FaceRegister: React.FC = () => {
     errorMessage,
     isRegistering,
     isComplete,
-    initializeCamera,
     captureImage,
     resetCapture,
-    submitRegistration
+    submitRegistration,
+    requestCamera,
+    releaseCamera
   } = useFaceRegistration();
+
+  useEffect(() => {
+    return () => {
+      console.log('FaceRegister: Cleaning up camera and object URLs');
+      releaseCamera();
+      capturedImages.forEach(imageBlob => {
+        if (imageBlob) {
+          URL.revokeObjectURL(URL.createObjectURL(imageBlob));
+        }
+      });
+    };
+  }, [releaseCamera, capturedImages]);
 
   return (
     <Container className="face-register-page">
@@ -36,7 +51,7 @@ const FaceRegister: React.FC = () => {
                     variant="outline-danger" 
                     size="sm" 
                     className="mt-2 d-block" 
-                    onClick={initializeCamera}
+                    onClick={requestCamera}
                   >
                     Retry Camera Access
                   </Button>
@@ -61,6 +76,7 @@ const FaceRegister: React.FC = () => {
                       className={`webcam-video ${isCapturing ? 'flash' : ''}`}
                       autoPlay 
                       playsInline
+                      muted
                     />
                     {isCapturing && <div className="capturing-overlay" />}
                   </div>
@@ -101,14 +117,14 @@ const FaceRegister: React.FC = () => {
                 </Button>
                 
                 {isComplete ? (
-                  <Button variant="primary" onClick={() => window.history.back()}>
-                    Return to Dashboard
+                  <Button variant="primary" onClick={() => navigate(-1)}>
+                    Return
                   </Button>
                 ) : (
                   <Button 
                     variant="primary" 
                     onClick={capturedImages.length < 3 ? captureImage : submitRegistration}
-                    disabled={isCapturing || isRegistering || !videoRef.current}
+                    disabled={isCapturing || isRegistering || !videoRef.current?.srcObject}
                   >
                     {isRegistering ? (
                       <>
