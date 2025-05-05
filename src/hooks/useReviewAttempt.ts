@@ -133,11 +133,33 @@ export const useReviewAttempt = (assessmentId: string, userId: string) => {
     if (!attemptId || !userId) return;
 
     dispatch({ type: "SET_LOADING", payload: true });
-    const suspiciousList: LogSuspiciousActivity[] = await adminService.getSuspiciousActOfUserInAttempt(
-      userId,
-      attemptId
-    );
-    dispatch({ type: "SET_SUSPICIOUS_LIST", payload: suspiciousList });
+    try {
+      const suspiciousList: LogSuspiciousActivity[] = await adminService.getSuspiciousActOfUserInAttempt(
+        userId,
+        attemptId
+      );
+      
+      // Handle image data format if needed
+      // For example, ensure all image data URLs have proper prefix
+      const processedList = suspiciousList.map(activity => {
+        if (activity.imageData && !activity.imageData.startsWith('data:')) {
+          // If imageData doesn't have the proper prefix, add it
+          return {
+            ...activity,
+            imageData: `data:image/jpeg;base64,${activity.imageData}`
+          };
+        }
+        return activity;
+      });
+      
+      dispatch({ type: "SET_SUSPICIOUS_LIST", payload: processedList });
+    } catch (error) {
+      console.error("Error fetching suspicious activities:", error);
+      dispatch({
+        type: "SET_ERROR",
+        payload: "Failed to load suspicious activities. Please try again."
+      });
+    }
   }, []);
 
   const gradeAttempt = useCallback(

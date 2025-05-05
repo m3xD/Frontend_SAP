@@ -15,6 +15,8 @@ import {
   Alert,
   Accordion,
   Form,
+  Modal,
+  Image
 } from "react-bootstrap";
 import {
   ArrowLeft,
@@ -23,6 +25,7 @@ import {
   XCircle,
   Flag,
   Eye,
+  Camera
 } from "react-feather";
 import { Answer } from "../../../types/AdminServiceTypes";
 
@@ -35,6 +38,10 @@ const ReviewAttempt: React.FC = () => {
   const [selectedAttemptId, setSelectedAttemptId] = useState<string | null>(
     null
   );
+
+  // State for image modal
+  const [showImageModal, setShowImageModal] = useState<boolean>(false);
+  const [currentImageData, setCurrentImageData] = useState<string | null>(null);
 
   if (!assessmentId || !userId) {
     console.error("Missing assessmentId or userId");
@@ -90,6 +97,12 @@ const ReviewAttempt: React.FC = () => {
   }, [studentAttempHistoryDetail, questionsList]);
 
   console.log("Answers state:", answers);
+
+  // Function to handle viewing image
+  const handleViewImage = (imageData: string) => {
+    setCurrentImageData(imageData);
+    setShowImageModal(true);
+  };
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
@@ -577,14 +590,17 @@ const ReviewAttempt: React.FC = () => {
                   </Card>
 
                   <Card className="mb-4">
-                    <Card.Header className="bg-warning text-dark">
+                    <Card.Header className="bg-warning text-dark d-flex justify-content-between align-items-center">
                       <h5 className="mb-0">
                         <Flag size={16} className="me-2" />
                         Suspicious Activities
                       </h5>
+                      <Badge bg="dark" pill>
+                        {suspiciousList?.length || 0} incidents detected
+                      </Badge>
                     </Card.Header>
                     <Card.Body>
-                      {suspiciousList.length > 0 ? (
+                      {suspiciousList && suspiciousList.length > 0 ? (
                         <ul className="suspicious-activities-list p-0">
                           {suspiciousList.map((activity) => (
                             <li
@@ -593,7 +609,15 @@ const ReviewAttempt: React.FC = () => {
                             >
                               <div className="d-flex justify-content-between align-items-center mb-2">
                                 <div className="activity-type">
-                                  <strong>{activity.type}</strong>
+                                  <strong>
+                                    {activity.type.replace(/_/g, ' ')}
+                                    {activity.type === "LOOKING_AWAY" && 
+                                      <span className="text-danger ms-1">(Face Not in Frame)</span>
+                                    }
+                                    {activity.type === "MULTIPLE_FACES" && 
+                                      <span className="text-danger ms-1">(Multiple People Detected)</span>
+                                    }
+                                  </strong>
                                 </div>
                                 <div className="d-flex align-items-center">
                                   <Badge
@@ -606,7 +630,7 @@ const ReviewAttempt: React.FC = () => {
                                     }
                                     className="me-2"
                                   >
-                                    {activity.severity}
+                                    {activity.severity} RISK
                                   </Badge>
                                   <small className="text-muted">
                                     {formatDate(activity.timestamp)}
@@ -616,6 +640,31 @@ const ReviewAttempt: React.FC = () => {
                               <div className="activity-detail text-secondary">
                                 {activity.details}
                               </div>
+                              
+                              {/* Add image view button if activity has imageData */}
+                              {activity.imageData && (
+                                <div className="mt-2">
+                                  <Button 
+                                    variant="outline-secondary"
+                                    size="sm"
+                                    className="evidence-btn"
+                                    onClick={() => handleViewImage(activity.imageData)}
+                                  >
+                                    <Camera size={14} className="me-1" />
+                                    View Photo Evidence
+                                    <Badge 
+                                      bg={activity.severity === "HIGH" ? "danger" : 
+                                          activity.severity === "MEDIUM" ? "warning" : "info"}
+                                      className="ms-1"
+                                    >
+                                      {activity.type}
+                                    </Badge>
+                                  </Button>
+                                  <small className="text-muted ms-2">
+                                    Captured at {formatDate(activity.timestamp)}
+                                  </small>
+                                </div>
+                              )}
                             </li>
                           ))}
                         </ul>
@@ -684,6 +733,57 @@ const ReviewAttempt: React.FC = () => {
             </Col>
           </Row>
         )}
+        
+        {/* Modal for displaying images */}
+        <Modal
+          show={showImageModal}
+          onHide={() => setShowImageModal(false)}
+          size="lg"
+          centered
+          className="image-modal"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Suspicious Activity Evidence</Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="text-center p-0">
+            {currentImageData ? (
+              <div className="position-relative">
+                <Image 
+                  src={currentImageData} 
+                  alt="Activity Evidence" 
+                  fluid 
+                  className="evidence-image"
+                />
+                <div className="image-timestamp">
+                  {formatDate(new Date().toISOString())}
+                </div>
+              </div>
+            ) : (
+              <div className="p-5">
+                <p>No image available</p>
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="outline-primary" onClick={() => {
+              if (currentImageData) {
+                // Create a download link
+                const a = document.createElement('a');
+                a.href = currentImageData;
+                a.download = `evidence-${new Date().getTime()}.jpg`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+              }
+            }}>
+              Download Image
+            </Button>
+            <Button variant="secondary" onClick={() => setShowImageModal(false)}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
+        
       </Container>
     </div>
   );

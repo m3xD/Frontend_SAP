@@ -72,6 +72,7 @@ export interface SuspiciousActivity {
   details: string;
   timestamp: string;
   userAgent: string;
+  imageData?: string; // Thêm trường imageData tùy chọn
 }
 
 export interface LogSuspiciousActivity {
@@ -85,4 +86,5 @@ export interface LogSuspiciousActivity {
   severity: "LOW" | "MEDIUM" | "HIGH";
   reviewed: boolean; 
   createdAt: string;
+  imageData?: string; // Thêm trường imageData tùy chọn
 }
