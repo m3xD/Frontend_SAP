@@ -106,6 +106,29 @@ const studentService = {
     }
   },
 
+
+  /**
+   * Reports a monitoring event during an assessment
+   * @param {string} attemptId - Attempt ID
+   * @param {WebcamEvent} webcamEventData - Webcam event data
+   * @return {Promise<{received: boolean, severity: string, message: string}>} - Response from the server
+   */
+  async submitWebcamMonitorEvent(
+    attemptId: string,
+    webcamEventData: WebcamEvent
+  ): Promise<{ received: boolean; severity: string; message: string }> {
+    try {
+      const res = await mainApi.post(
+        `/student/attempts/${attemptId}/monitor`,
+        webcamEventData
+      );
+      return res.data;
+    } catch (error) {
+      throw new Error("Failed to submit webcam monitor event");
+    }
+  },
+
+
   /**
    * Verifies a user's face identity before starting an assessment
    * @param {FormData} formData - Form data containing the face image and user ID

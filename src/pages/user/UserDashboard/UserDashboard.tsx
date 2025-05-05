@@ -53,7 +53,7 @@ const UserDashboard: React.FC = () => {
             attemptId: "attempt-1",
             assessmentId: "assessment-1",
             title: "Introduction to JavaScript",
-            date: new Date(Date.now() - 86400000 * 2).toISOString(), // 2 days ago
+            // date: new Date(Date.now() - 86400000 * 2).toISOString(), // 2 days ago
             score: 85,
             duration: 45,
             status: "passed",
@@ -63,7 +63,7 @@ const UserDashboard: React.FC = () => {
             attemptId: "attempt-2",
             assessmentId: "assessment-2",
             title: "React Fundamentals",
-            date: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
+            // date: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
             score: 92,
             duration: 60,
             status: "passed",

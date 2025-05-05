@@ -196,7 +196,7 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({
       backdrop="static"
       keyboard={false}
       centered
-      size="md"
+      size="lg"
       className="face-verification-modal"
     >
       <Modal.Header closeButton={!isVerifying}>
