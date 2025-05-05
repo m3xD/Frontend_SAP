@@ -8,6 +8,7 @@ import { StartAssessment, AssessmentResult } from "../../../types/StudentService
 import { toast } from "react-toastify";
 import "./UserDashboard.scss";
 import { formatDate } from "../../../utils/dateUtils";
+import FaceVerification from "../../../components/FaceVerification/FaceVerification";
 
 const UserDashboard: React.FC = () => {
   const { authState } = useAuth();
@@ -25,6 +26,10 @@ const UserDashboard: React.FC = () => {
     upcomingAssessments: 0
   });
   const [startingAssessment, setStartingAssessment] = useState<string | null>(null);
+
+  // Face verification modal state
+  const [showVerificationModal, setShowVerificationModal] = useState<boolean>(false);
+  const [selectedAssessmentId, setSelectedAssessmentId] = useState<string | null>(null);
 
   // Fetch dashboard data
   useEffect(() => {
@@ -87,13 +92,22 @@ const UserDashboard: React.FC = () => {
     fetchDashboardData();
   }, []);
 
-  // Start an assessment
-  const handleStartAssessment = async (assessmentId: string) => {
+  // Handle assessment selection for face verification
+  const handleSelectAssessment = (assessmentId: string) => {
+    setSelectedAssessmentId(assessmentId);
+    setShowVerificationModal(true);
+  };
+
+  // Start an assessment after verification
+  const handleVerificationSuccess = async () => {
+    if (!selectedAssessmentId) return;
+    
     try {
-      setStartingAssessment(assessmentId);
+      setStartingAssessment(selectedAssessmentId);
+      setShowVerificationModal(false);
       
       // Call the API to start the assessment
-      const response = await studentService.startAssessment(assessmentId);
+      const response = await studentService.startAssessment(selectedAssessmentId);
       
       // Save the assessment data to session storage
       sessionStorage.setItem(`assessment_${response.attemptId}`, JSON.stringify(response));
@@ -106,10 +120,9 @@ const UserDashboard: React.FC = () => {
       toast.error('Failed to start assessment. Please try again.');
     } finally {
       setStartingAssessment(null);
+      setSelectedAssessmentId(null);
     }
   };
-
-  
 
   if (loading) {
     return (
@@ -228,7 +241,7 @@ const UserDashboard: React.FC = () => {
                           variant="primary" 
                           size="sm"
                           disabled={startingAssessment === assessment.id}
-                          onClick={() => handleStartAssessment(assessment.id)}
+                          onClick={() => handleSelectAssessment(assessment.id)}
                         >
                           {startingAssessment === assessment.id ? (
                             <>
@@ -350,6 +363,17 @@ const UserDashboard: React.FC = () => {
           </Col>
         </Row>
       </Container>
+
+      {/* Face Verification Modal */}
+      {authState.user && (
+        <FaceVerification 
+          show={showVerificationModal} 
+          onHide={() => setShowVerificationModal(false)}
+          onVerificationSuccess={handleVerificationSuccess}
+          userId={authState.user.id}
+          userName={authState.user.name}
+        />
+      )}
     </div>
   );
 };

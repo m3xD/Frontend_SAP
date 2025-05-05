@@ -8,7 +8,7 @@ import {
   WebcamEvent,
 } from "./../types/StudentServiceTypes";
 
-import { mainApi } from "../utils/AxiosInterceptor";
+import { aiApi, mainApi } from "../utils/AxiosInterceptor";
 
 const studentService = {
   /**
@@ -107,25 +107,45 @@ const studentService = {
   },
 
   /**
-   * Reports a monitoring event during an assessment
-   * @param {string} attemptId - Attempt ID
-   * @param {WebcamEvent} webcamEventData - Webcam event data
-   * @return {Promise<{received: boolean, severity: string, message: string}>} - Response from the server
+   * Verifies a user's face identity before starting an assessment
+   * @param {FormData} formData - Form data containing the face image and user ID
+   * @param {string} expectedName - Expected user name to match against API response
+   * @returns {Promise<any>} - Verification response
    */
-  async submitWebcamMonitorEvent(
-    attemptId: string,
-    webcamEventData: WebcamEvent
-  ): Promise<{ received: boolean; severity: string; message: string }> {
+  async verifyFaceIdentity(formData: FormData, expectedName: string): Promise<any> {
     try {
-      const res = await mainApi.post(
-        `/student/attempts/${attemptId}/monitor`,
-        webcamEventData
+      const res = await aiApi.post(
+        '/recognition', 
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        }
       );
-      return res.data;
+      
+      // Response is now an array, get the first (and likely only) item
+      const responseData = Array.isArray(res.data) && res.data.length > 0 
+        ? res.data[0] 
+        : res.data;
+      
+      // Add a 'verified' field based on the confidence threshold
+      const CONFIDENCE_THRESHOLD = 0.7; // You can adjust this threshold as needed
+      
+      // Check if the name in the response matches the expected name
+      const nameMatches = responseData.name.toLowerCase() === expectedName.toLowerCase();
+      
+      return {
+        ...responseData,
+        verified: responseData.confidence >= CONFIDENCE_THRESHOLD && nameMatches,
+        nameMatches: nameMatches
+      };
     } catch (error) {
-      throw new Error("Failed to submit webcam monitor event");
+      console.error('Error verifying face identity:', error);
+      throw new Error("Failed to verify face identity");
     }
   },
 };
+
 
 export default studentService;

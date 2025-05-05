@@ -5,9 +5,12 @@ import { useNavigate } from "react-router-dom";
 import studentService from "../../../services/studentService";
 import { toast } from "react-toastify";
 import "./RecentAssessmentsList.scss";
+import FaceVerification from "../../../components/FaceVerification/FaceVerification";
+import { useAuth } from "../../../hooks/useAuth";
 
 const RecentAssessmentsList: React.FC = () => {
 	const navigate = useNavigate();
+  const { authState } = useAuth();
 
 	// State
 	const [loading, setLoading] = useState<boolean>(true);
@@ -16,6 +19,10 @@ const RecentAssessmentsList: React.FC = () => {
 	const [startingAssessment, setStartingAssessment] = useState<string | null>(null);
 	const [page, setPage] = useState<number>(0);
 	const pageSize = 10;
+  
+  // Face verification modal state
+  const [showVerificationModal, setShowVerificationModal] = useState<boolean>(false);
+  const [selectedAssessmentId, setSelectedAssessmentId] = useState<string | null>(null);
 
 	// Fetch assessments
 	useEffect(() => {
@@ -37,13 +44,22 @@ const RecentAssessmentsList: React.FC = () => {
 		fetchAssessments();
 	}, [page]);
 
-	// Start an assessment
-	const handleStartAssessment = async (assessmentId: string) => {
+	// Handle assessment selection and start face verification
+	const handleSelectAssessment = (assessmentId: string) => {
+		setSelectedAssessmentId(assessmentId);
+		setShowVerificationModal(true);
+	};
+
+	// Start an assessment after successful verification
+	const handleVerificationSuccess = async () => {
+		if (!selectedAssessmentId) return;
+		
 		try {
-			setStartingAssessment(assessmentId);
+			setStartingAssessment(selectedAssessmentId);
+			setShowVerificationModal(false);
 
 			// Call the API to start the assessment
-			const response = await studentService.startAssessment(assessmentId);
+			const response = await studentService.startAssessment(selectedAssessmentId);
 
 			// Save the assessment data to session storage
 			sessionStorage.setItem(`assessment_${response.attemptId}`, JSON.stringify(response));
@@ -56,6 +72,7 @@ const RecentAssessmentsList: React.FC = () => {
 			toast.error('Failed to start assessment. Please try again.');
 		} finally {
 			setStartingAssessment(null);
+			setSelectedAssessmentId(null);
 		}
 	};
 
@@ -145,7 +162,7 @@ const RecentAssessmentsList: React.FC = () => {
 											<Button
 												variant="primary"
 												disabled={startingAssessment === assessment.id}
-												onClick={() => handleStartAssessment(assessment.id)}
+												onClick={() => handleSelectAssessment(assessment.id)}
 											>
 												{startingAssessment === assessment.id ? (
 													<>
@@ -168,6 +185,17 @@ const RecentAssessmentsList: React.FC = () => {
 
 				{!loading && assessments.totalPages > 1 && renderPagination()}
 			</Container>
+
+			{/* Face Verification Modal */}
+			{authState.user && (
+				<FaceVerification
+					show={showVerificationModal}
+					onHide={() => setShowVerificationModal(false)}
+					onVerificationSuccess={handleVerificationSuccess}
+					userId={authState.user.id}
+					userName={authState.user.name}
+				/>
+			)}
 		</div>
 	);
 };
