@@ -57,7 +57,10 @@ const UserDashboard: React.FC = () => {
             score: 85,
             duration: 45,
             status: "passed",
-            feedback: "Good work on JavaScript fundamentals!"
+            feedback: "Good work on JavaScript fundamentals!",
+            startedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+            submittedAt: "",
+            passingScore: 0
           },
           {
             attemptId: "attempt-2",
@@ -67,7 +70,10 @@ const UserDashboard: React.FC = () => {
             score: 92,
             duration: 60,
             status: "passed",
-            feedback: "Excellent understanding of React concepts!"
+            feedback: "Excellent understanding of React concepts!",
+            startedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+            submittedAt: "",
+            passingScore: 0
           }
         ];
         
@@ -300,7 +306,7 @@ const UserDashboard: React.FC = () => {
                           <td>
                             <div>
                               <div className="fw-medium">{result.title}</div>
-                              <small className="text-muted">{formatDate(result.date)}</small>
+                              <small className="text-muted">{formatDate(result.startedAt)}</small>
                             </div>
                           </td>
                           <td>{result.score}%</td>
