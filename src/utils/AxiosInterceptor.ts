@@ -131,6 +131,6 @@ export const createApiInstance = (baseURL: string): AxiosInstance => {
 };
 
 // Create specific API instances for different services
-export const authApi = createApiInstance('https://auth-service-6f3ceb0b5b52.herokuapp.com');
-export const mainApi = createApiInstance('https://main-backend-f59ecff5cbde.herokuapp.com');
+export const authApi = createApiInstance('https://api-sap.m3xd.dev/users');
+export const mainApi = createApiInstance('https://api-sap.m3xd.dev/assessments');
 export const aiApi = createApiInstance('https://api-sap.m3xd.dev/ai');
