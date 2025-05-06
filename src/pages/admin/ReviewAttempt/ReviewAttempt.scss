@@ -1,6 +1,109 @@
 .review-attempt {
-    margin-top: var(--header-height);
     background: var(--color-background);
+    margin-top: var(--header-height);
     padding: var(--padding-1);
     min-height: calc(100vh - var(--header-height));
+    
+    // Styling for suspicious activities
+    .suspicious-activities-list {
+        .activity-item {
+            position: relative;
+            
+            .activity-type {
+                font-weight: 500;
+            }
+            
+            .activity-detail {
+                margin-bottom: 0.5rem;
+            }
+            
+            .evidence-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.85rem;
+                padding: 0.25rem 0.75rem;
+                border-radius: 4px;
+            }
+        }
+    }
+    
+    // Image modal styling
+    .image-modal {
+        .modal-body {
+            padding: 0;
+            background-color: #000;
+        }
+        
+        .evidence-image {
+            width: 100%;
+            object-fit: contain;
+            max-height: 80vh;
+        }
+        
+        .image-timestamp {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+    }
+}
+
+// Status badge styling
+.status-badge {
+    &.high {
+        background-color: var(--color-danger);
+    }
+    
+    &.medium {
+        background-color: var(--color-warning);
+    }
+    
+    &.low {
+        background-color: var(--color-info-dark);
+    }
+}
+
+// Question response styling
+.question-detail {
+    .option {
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+        background-color: rgba(0, 0, 0, 0.03);
+        
+        &.correct-option {
+            border-left: 3px solid var(--color-success);
+            background-color: rgba(65, 241, 182, 0.1);
+        }
+        
+        &.student-selected-option {
+            border-left: 3px solid var(--color-primary);
+        }
+    }
+    
+    .essay-answer {
+        background-color: rgba(0, 0, 0, 0.02);
+        border-radius: 6px;
+    }
+    
+    .selected-option {
+        padding: 0.75rem;
+        border-radius: 6px;
+        
+        &.bg-success-subtle {
+            background-color: rgba(65, 241, 182, 0.1) !important;
+            border-left: 3px solid var(--color-success);
+        }
+        
+        &.bg-danger-subtle {
+            background-color: rgba(255, 119, 130, 0.1) !important;
+            border-left: 3px solid var(--color-danger);
+        }
+    }
 }
