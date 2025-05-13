@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { useUserService } from "../../hooks/useUserService";
 import defaultAvatar from "../../assets/avatar.jpg";
 import { useNavigate } from "react-router-dom";
+import userService from "../../services/userService";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -55,23 +56,36 @@ const ProfilePage = () => {
     }
   };
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError("");
 
-    if (passwordForm.new !== passwordForm.confirm) {
+    // Trim passwords to avoid accidental spaces
+    const current = passwordForm.current.trim();
+    const newPassword = passwordForm.new.trim();
+    const confirm = passwordForm.confirm.trim();
+
+    if (newPassword !== confirm) {
       setPasswordError("New passwords don't match");
       return;
     }
 
-    if (passwordForm.new.length < 6) {
+    if (newPassword.length < 6) {
       setPasswordError("Password must be at least 6 characters");
       return;
     }
-
-    // Here you would call the API to update the password
-    toast.success("Password updated successfully!");
-    setPasswordForm({ current: "", new: "", confirm: "" });
+    const passwordData = {
+      currentPassword: current,
+      newPassword,
+    };
+    try {
+      await userService.changePassword(authState.user?.id || "", passwordData);
+      toast.success("Password updated successfully!");
+      setPasswordForm({ current: "", new: "", confirm: "" });
+    } catch (error) {
+      setPasswordError("Failed to update password. Please try again.");
+      console.error("Password update failed:", error);
+    }
   };
 
   return (
@@ -91,7 +105,10 @@ const ProfilePage = () => {
                   alt="Profile"
                   className="profile-avatar"
                 />
-                <button className="avatar-edit-btn" onClick={() => navigate('/user/face-register')}>
+                <button
+                  className="avatar-edit-btn"
+                  onClick={() => navigate("/user/face-register")}
+                >
                   <Camera size={16} />
                 </button>
               </div>
@@ -103,7 +120,7 @@ const ProfilePage = () => {
                 <div className="info-label">Email</div>
                 <div className="info-value">{authState.user?.email}</div>
               </div>
-            
+
               <div className="info-item">
                 <div className="info-label">User ID</div>
                 <div className="info-value">{authState.user?.id}</div>
@@ -169,7 +186,7 @@ const ProfilePage = () => {
                     </Form.Group>
                   </Col>
                 </Row>
-                
+
                 {editing && (
                   <div className="d-flex justify-content-end">
                     <Button variant="primary" type="submit">

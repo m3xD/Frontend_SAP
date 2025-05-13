@@ -149,13 +149,13 @@ const userService = {
   /**
    * Change password
    * @param id - User ID
-   * @param passwordData - Old password and new password
+   * @param passwordData - Current password and new password
    * @returns {Promise<void>} - Promise object
    */
   async changePassword(
     id: string,
     passwordData: {
-      oldPassword: string;
+      currentPassword: string;
       newPassword: string;
     }
   ): Promise<void> {
