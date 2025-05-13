@@ -5,12 +5,13 @@ import { toast } from "react-toastify";
 import { useAssessmentTakingContext } from "../contexts/AssessmentTakingContext";
 import studentService from "../services/studentService";
 import {
-	StartAssessment,
-	StartAssessmentQuestions,
-	SubmitAssessmentResponse,
+  StartAssessment,
+  StartAssessmentQuestions,
+  SubmitAssessmentResponse,
 } from "../types/StudentServiceTypes";
 import { useAuth } from "./useAuth";
 import { useSuspiciousActivityTracking } from "./useSuspiciousActivityTracking";
+import { usePreventCheating } from "./usePreventCheating";
 
 export const useTakingAssessment = (urlAttemptId: string | undefined) => {
   const navigate = useNavigate();
@@ -42,6 +43,11 @@ export const useTakingAssessment = (urlAttemptId: string | undefined) => {
     onExceedThreshold: () => {
       handleSubmitAssessment();
     },
+  });
+
+  // Using hook prevent cheating
+  const preventCheating = usePreventCheating({
+    isActive: true,
   });
 
   // Load assessment data
@@ -258,27 +264,6 @@ export const useTakingAssessment = (urlAttemptId: string | undefined) => {
     dispatch({ type: "PREV_QUESTION" });
   }, [dispatch]);
 
-  const handleWebcamEvent = useCallback(
-    (eventType: string, details: unknown) => {
-      // if (eventType === "warning") {
-      //   dispatch({ type: "ADD_WEBCAM_WARNING" });
-      //   toast.warning(details.message);
-      //   // Log webcam event to the server
-      //   if (attemptId) {
-      //     studentService
-      //       .submitWebcamMonitorEvent(attemptId, {
-      //         eventType,
-      //         details,
-      //         timestamp: new Date().toISOString(),
-      //         imageData: details.imageData || "",
-      //       })
-      //       .catch((err) => console.error("Error logging webcam event:", err));
-      //   }
-      // }
-    },
-    [attemptId, dispatch]
-  );
-
   // Submit assessment - updated to save pending answers first
   const handleSubmitAssessment = useCallback(async () => {
     if (!assessment || !attemptId) return;
@@ -312,7 +297,7 @@ export const useTakingAssessment = (urlAttemptId: string | undefined) => {
 
   // --- Function to handle closing the results modal AND navigating to dashboard ---
   const handleCloseResultsModal = useCallback(() => {
-    navigate('/user/dashboard'); // Navigate to dashboard - this will unmount TakingAssessment
+    navigate("/user/dashboard"); // Navigate to dashboard - this will unmount TakingAssessment
   }, [navigate]); // Dependency only on navigate
 
   // Other utility functions remain the same
@@ -361,6 +346,7 @@ export const useTakingAssessment = (urlAttemptId: string | undefined) => {
     handleSubmitAssessment,
     calculateProgress,
     handleViolationDetected,
-    handleCloseResultsModal, // <-- Return the new handler function
+    handleCloseResultsModal,
+    preventCheating,
   };
 };
