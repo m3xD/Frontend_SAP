@@ -27,6 +27,7 @@ import {
   FileText,
   HelpCircle,
   BarChart2,
+  Users,
 } from "react-feather";
 import { QuestionData } from "../../../types/QuestionTypes";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal/DeleteConfirmationModal";
@@ -383,6 +384,7 @@ const AssessmentDetail = () => {
                       active={activeTab === "student-submissions"}
                       onClick={() => setActiveTab("student-submissions")}
                     >
+                      <Users size={16} className="me-2" />
                       Student Submissions
                     </Nav.Link>
                   </Nav.Item>
