@@ -4,7 +4,7 @@ import {
   SuspiciousActivity,
 } from "./../types/AnalyticTypes";
 import { AssessmentPerformance, UserActivity } from "../types/AnalyticTypes";
-import { mainApi } from "../utils/AxiosInterceptor";
+import { mainApi, proctorApi } from "../utils/AxiosInterceptor";
 
 const analyticsService = {
   /**
@@ -44,7 +44,7 @@ const analyticsService = {
     suspiciousActivity: SuspiciousActivity
   ): Promise<LogSuspiciousActivity> {
     try {
-      const logSuspiciousActivity: LogSuspiciousActivity = await mainApi.post(
+      const logSuspiciousActivity: LogSuspiciousActivity = await proctorApi.post(
         `/analytics/suspicious`,
         suspiciousActivity
       );

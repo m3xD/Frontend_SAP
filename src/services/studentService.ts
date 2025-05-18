@@ -8,7 +8,7 @@ import {
   WebcamEvent,
 } from "./../types/StudentServiceTypes";
 
-import { aiApi, mainApi } from "../utils/AxiosInterceptor";
+import { proctorApi, aiApi, mainApi } from "../utils/AxiosInterceptor";
 
 const studentService = {
   /**
@@ -118,7 +118,7 @@ const studentService = {
     webcamEventData: WebcamEvent
   ): Promise<{ received: boolean; severity: string; message: string }> {
     try {
-      const res = await mainApi.post(
+      const res = await proctorApi.post(
         `/student/attempts/${attemptId}/monitor`,
         webcamEventData
       );
