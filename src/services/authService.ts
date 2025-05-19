@@ -3,7 +3,7 @@ import { authApi } from "./../utils/AxiosInterceptor";
 import axios from "axios";
 import { User } from "../types/UserTypes";
 
-const API_URL = "https://auth-service-6f3ceb0b5b52.herokuapp.com";
+const API_URL = "https://api-sap.m3xd.dev/users";
 
 const authService = {
   /**
