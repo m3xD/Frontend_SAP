@@ -6,7 +6,8 @@ export default defineConfig({
   server: {
 		allowedHosts: true,
 		hmr: {
-			host: 'localhost'
+			host: 'localhost',
+			protocol: "ws",
 		}
 	},
 })
