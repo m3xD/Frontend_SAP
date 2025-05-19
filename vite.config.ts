@@ -7,7 +7,7 @@ export default defineConfig({
 		allowedHosts: ["sap.m3xd.dev"],
 		hmr: {
 			host: 'sap.m3xd.dev',
-			protocol: "ws",
+			protocol: "wss",
 		}
 	},
 })
