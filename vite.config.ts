@@ -5,9 +5,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   server: {
 		allowedHosts: ["sap.m3xd.dev"],
-		hmr: {
-			host: 'sap.m3xd.dev',
-			protocol: "wss",
-		}
+		hmr: false
 	},
 })
