@@ -96,7 +96,7 @@ const AdminDashboard: React.FC = () => {
 
         {/* Summary Stats */}
         <Row className="stats-section">
-          <Col md={3}>
+          <Col md={3} className="mb-4 mb-md-0">
             <Card className="stat-card">
               <Card.Body>
                 <div className="d-flex align-items-center">
@@ -115,7 +115,7 @@ const AdminDashboard: React.FC = () => {
             </Card>
           </Col>
           
-          <Col md={3}>
+          <Col md={3} className="mb-4 mb-md-0">
             <Card className="stat-card">
               <Card.Body>
                 <div className="d-flex align-items-center">
@@ -136,7 +136,7 @@ const AdminDashboard: React.FC = () => {
             </Card>
           </Col>
           
-          <Col md={3}>
+          <Col md={3} className="mb-4 mb-md-0">
             <Card className="stat-card">
               <Card.Body>
                 <div className="d-flex align-items-center">
@@ -215,7 +215,7 @@ const AdminDashboard: React.FC = () => {
             </Card>
           </Col>
           
-          <Col lg={4}>
+          <Col lg={4} className="mt-4 mt-lg-0">
             <Card className="dashboard-card">
               <Card.Header>
                 <h5 className="mb-0">System Status</h5>
