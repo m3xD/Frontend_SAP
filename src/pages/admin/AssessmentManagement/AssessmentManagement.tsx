@@ -126,9 +126,9 @@ const AssessmentManagement: React.FC = () => {
                   onChange={(e) => setFilter('status', e.target.value)}
                 >
                   <option value="">All Statuses</option>
-                  <option value="Active">Active</option>
-                  <option value="Draft">Draft</option>
-                  <option value="Expired">Expired</option>
+                  <option value="active">Active</option>
+                  <option value="draft">Draft</option>
+                  <option value="expired">Expired</option>
                 </Form.Select>
               </Col>
 
