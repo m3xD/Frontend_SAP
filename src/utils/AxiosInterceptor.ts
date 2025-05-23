@@ -134,4 +134,4 @@ export const createApiInstance = (baseURL: string): AxiosInstance => {
 export const authApi = createApiInstance('https://api-sap.m3xd.dev/users');
 export const mainApi = createApiInstance('https://api-sap.m3xd.dev/assessments');
 export const aiApi = createApiInstance('https://api-sap.m3xd.dev/ai');
-export const proctorApi = createApiInstance('https://api-sap.m3xd.dev/proctoring-service');
+export const proctorApi = createApiInstance('https://api-sap.m3xd.dev/proctoring');
