@@ -16,7 +16,7 @@ const config: Config = {
   },
   coveragePathIgnorePatterns: ['/node_modules/', '/src/types/'],
   coverageDirectory: '.qodana/code-coverage/',
-  coverageReporters: ['lcovonly'],
+  coverageReporters: ['lcovonly', 'text', 'html'],
 };
 
 export default config;

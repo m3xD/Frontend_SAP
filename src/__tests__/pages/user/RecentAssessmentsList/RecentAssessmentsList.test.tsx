@@ -1,15 +1,12 @@
-// src/__tests__/pages/user/UserDashboard/UserDashboard.test.tsx
 import React from 'react';
-import { screen, fireEvent, waitFor } from '@testing-library/react'; // Remove the render import
-import { render } from '../../../../test-utils'; // Import the custom render function instead
-import UserDashboard from '../../../../pages/user/UserDashboard/UserDashboard';
-import { useAuth } from '../../../../hooks/useAuth';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { render } from '../../../../test-utils';
+import RecentAssessmentsList from '../../../../pages/user/RecentAssessmentsList/RecentAssessmentsList';
 import studentService from '../../../../services/studentService';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 // Mock dependencies
-jest.mock('../../../../hooks/useAuth');
 jest.mock('../../../../services/studentService');
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -17,22 +14,9 @@ jest.mock('react-router-dom', () => ({
 }));
 jest.mock('react-toastify');
 
-describe('UserDashboard', () => {
+describe('RecentAssessmentsList', () => {
   // Setup mocks before each test
   beforeEach(() => {
-    // Mock auth state
-    (useAuth as jest.Mock).mockReturnValue({
-      authState: {
-        user: {
-          id: 'user-1',
-          name: 'Test User',
-          email: 'test@example.com',
-          role: 'user'
-        },
-        isAuthenticated: true
-      }
-    });
-
     // Mock navigate
     (useNavigate as jest.Mock).mockReturnValue(jest.fn());
 
@@ -43,6 +27,7 @@ describe('UserDashboard', () => {
           id: 'assessment-1',
           title: 'JavaScript Basics',
           subject: 'Programming',
+          description: 'Learn JavaScript fundamentals',
           duration: 60,
           passingScore: 70
         },
@@ -50,11 +35,12 @@ describe('UserDashboard', () => {
           id: 'assessment-2',
           title: 'React Fundamentals',
           subject: 'Web Development',
+          description: 'Introduction to React library',
           duration: 45,
           passingScore: 65
         }
       ],
-      totalElements: 6, // Set to 6 to make the button appear
+      totalElements: 2,
       totalPages: 1
     });
   });
@@ -64,11 +50,10 @@ describe('UserDashboard', () => {
     jest.clearAllMocks();
   });
 
-  // Tests will go here
   it('should display loading state initially', () => {
-    render(<UserDashboard />);
-    expect(screen.getByText('Loading dashboard data...')).toBeInTheDocument();
-    // Change from getByRole to querySelector to find the spinner
+    render(<RecentAssessmentsList />);
+    
+    expect(screen.getByText('Loading assessments...')).toBeInTheDocument();
     expect(document.querySelector('.spinner-border')).toBeInTheDocument();
   });
 
@@ -78,46 +63,59 @@ describe('UserDashboard', () => {
       new Error('Network error')
     );
     
-    render(<UserDashboard />);
+    render(<RecentAssessmentsList />);
     
     // Wait for error message to appear
     await waitFor(() => {
-      expect(screen.getByText('Error')).toBeInTheDocument();
-      expect(screen.getByText(/Failed to load dashboard data/)).toBeInTheDocument();
+      expect(screen.getByText(/Failed to load assessments/)).toBeInTheDocument();
     });
   });
 
-  it('should render dashboard content when data loads successfully', async () => {
-    // Setup mocks that will resolve immediately
-    (studentService.getAvailableAssessments as jest.Mock).mockResolvedValue({
-      content: [
-        {
-          id: 'assessment-1',
-          title: 'JavaScript Basics',
-          subject: 'Programming',
-          duration: 60,
-          passingScore: 70
-        }
-      ],
-      totalElements: 1,
-      totalPages: 1
-    });
+  it('should render assessments when data loads successfully', async () => {
+    render(<RecentAssessmentsList />);
     
-    render(<UserDashboard />);
-    
-    // Wait for loading to complete
     await waitFor(() => {
-      expect(screen.queryByText('Loading dashboard data...')).not.toBeInTheDocument();
+      expect(screen.getByText('JavaScript Basics')).toBeInTheDocument();
+      expect(screen.getByText('React Fundamentals')).toBeInTheDocument();
     });
     
-    // Then check for rendered content
-    expect(screen.getByText('Welcome, Test User')).toBeInTheDocument();
+    // Check that assessment details are displayed
+    expect(screen.getByText('Programming')).toBeInTheDocument();
+    expect(screen.getByText(/60 min/)).toBeInTheDocument();
+    expect(screen.getByText(/70% to pass/)).toBeInTheDocument();
+    expect(screen.getByText('Learn JavaScript fundamentals')).toBeInTheDocument();
     
-    // Be more specific with your queries to avoid multiple matches
-    expect(screen.getByRole('heading', { name: 'Available Assessments' })).toBeInTheDocument();
-    expect(screen.getByText('Completed Assessments', { selector: 'p' })).toBeInTheDocument();
-    expect(screen.getByText('Average Score', { selector: 'p' })).toBeInTheDocument();
-    expect(screen.getByText('Upcoming', { selector: 'p' })).toBeInTheDocument();
+    // Check that there are two "Start Assessment" buttons
+    const startButtons = screen.getAllByText(/Start Assessment/);
+    expect(startButtons).toHaveLength(2);
+  });
+
+  it('should not display pagination when only one page exists', async () => {
+    render(<RecentAssessmentsList />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('JavaScript Basics')).toBeInTheDocument();
+    });
+    
+    expect(screen.queryByText('1')).not.toBeInTheDocument(); // No pagination number should be visible
+  });
+
+  it('should display pagination when multiple pages exist', async () => {
+    // Mock response with multiple pages
+    (studentService.getAvailableAssessments as jest.Mock).mockResolvedValue({
+      content: [{ id: 'assessment-1', title: 'JavaScript Basics', subject: 'Programming', duration: 60, passingScore: 70 }],
+      totalElements: 11, // More than pageSize
+      totalPages: 2
+    });
+    
+    render(<RecentAssessmentsList />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('JavaScript Basics')).toBeInTheDocument();
+    });
+    
+    expect(screen.getByText('1')).toBeInTheDocument(); // First page
+    expect(screen.getByText('2')).toBeInTheDocument(); // Second page
   });
 
   it('should start an assessment when clicking the start button', async () => {
@@ -136,26 +134,26 @@ describe('UserDashboard', () => {
     (useNavigate as jest.Mock).mockReturnValue(navigate);
     
     // Storage mock
-    const mockSessionStorage: { [key: string]: unknown } = {};
-    Storage.prototype.setItem = jest.fn((key: string, value: unknown) => {
+    const mockSessionStorage: { [key: string]: string } = {};
+    Storage.prototype.setItem = jest.fn((key: string, value: string) => {
       mockSessionStorage[key] = value;
     });
     
-    render(<UserDashboard />);
+    render(<RecentAssessmentsList />);
     
     // Wait for the start button to appear
     await waitFor(() => {
       const startButtons = screen.getAllByText(/Start Assessment/);
-      expect(startButtons.length).toBeGreaterThan(0);
-      
-      // Click the first start button
       fireEvent.click(startButtons[0]);
     });
     
     // Check that the assessment was started
     await waitFor(() => {
       expect(studentService.startAssessment).toHaveBeenCalledWith('assessment-1');
-      expect(sessionStorage.setItem).toHaveBeenCalled();
+      expect(Storage.prototype.setItem).toHaveBeenCalledWith(
+        'assessment_attempt-123',
+        expect.any(String)
+      );
       expect(navigate).toHaveBeenCalledWith('/user/assessments/take/attempt-123');
     });
   });
@@ -166,7 +164,7 @@ describe('UserDashboard', () => {
       new Error('Failed to start')
     );
     
-    render(<UserDashboard />);
+    render(<RecentAssessmentsList />);
     
     await waitFor(() => {
       const startButtons = screen.getAllByText(/Start Assessment/);
@@ -178,29 +176,32 @@ describe('UserDashboard', () => {
     });
   });
 
-  it('should navigate to assessments page when "View All Assessments" is clicked', async () => {
-    const navigate = jest.fn();
-    (useNavigate as jest.Mock).mockReturnValue(navigate);
+  it('should show "No assessments available" when content is empty', async () => {
+    // Mock empty response
+    (studentService.getAvailableAssessments as jest.Mock).mockResolvedValueOnce({
+      content: [],
+      totalElements: 0,
+      totalPages: 0
+    });
     
-    render(<UserDashboard />);
+    render(<RecentAssessmentsList />);
     
     await waitFor(() => {
-      const viewAllButton = screen.getByText('View All Assessments');
-      fireEvent.click(viewAllButton);
-      expect(navigate).toHaveBeenCalledWith('/user/assessments');
+      expect(screen.getByText('No assessments available at this time.')).toBeInTheDocument();
     });
   });
 
-  it('should navigate to results page when "View All Results" is clicked', async () => {
+  it('should navigate back to dashboard when back button is clicked', async () => {
     const navigate = jest.fn();
     (useNavigate as jest.Mock).mockReturnValue(navigate);
     
-    render(<UserDashboard />);
+    render(<RecentAssessmentsList />);
     
     await waitFor(() => {
-      const viewAllButton = screen.getByText('View All Results');
-      fireEvent.click(viewAllButton);
-      expect(navigate).toHaveBeenCalledWith('/user/results');
+      const backButton = screen.getByText('Back to Dashboard');
+      fireEvent.click(backButton);
     });
+    
+    expect(navigate).toHaveBeenCalledWith('/user/dashboard');
   });
 });
